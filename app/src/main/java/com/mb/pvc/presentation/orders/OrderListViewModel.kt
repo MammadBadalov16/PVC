@@ -19,6 +19,13 @@ class OrderListViewModel @Inject constructor(
     val orders: StateFlow<List<OrderEntity>> = repository.getAllOrders()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    fun updateOrderQuantity(order: OrderEntity, newQuantity: Int) {
+        if (newQuantity < 1) return
+        viewModelScope.launch {
+            repository.updateOrder(order.copy(quantity = newQuantity))
+        }
+    }
+
     fun deleteOrder(id: Int) {
         viewModelScope.launch {
             repository.deleteOrder(id)

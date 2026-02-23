@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.mb.pvc.presentation.calculator.CalculatorScreen
 import com.mb.pvc.presentation.orders.OrderListScreen
 import com.mb.pvc.presentation.reports.ReportScreen
+import com.mb.pvc.presentation.settings.SettingsScreen
 
 @Composable
 fun NavGraph(
@@ -27,6 +28,9 @@ fun NavGraph(
         }
         composable(Screen.Reports.route) {
             ReportScreen()
+        }
+        composable(Screen.Settings.route) {
+            SettingsScreen()
         }
     }
 }

@@ -10,9 +10,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -34,6 +36,7 @@ fun OrderListScreen(viewModel: OrderListViewModel = hiltViewModel()) {
     val orders by viewModel.orders.collectAsState()
     var orderToDelete by remember { mutableStateOf<OrderEntity?>(null) }
     var selectedOrder by remember { mutableStateOf<OrderEntity?>(null) }
+    var orderToEdit by remember { mutableStateOf<OrderEntity?>(null) }
 
     Scaffold(
         topBar = {
@@ -113,7 +116,11 @@ fun OrderListScreen(viewModel: OrderListViewModel = hiltViewModel()) {
                             },
                             enableDismissFromStartToEnd = false
                         ) {
-                            ModernOrderItem(order = order, onClick = { selectedOrder = order })
+                            ModernOrderItem(
+                                order = order, 
+                                onClick = { selectedOrder = order },
+                                onEditQuantity = { orderToEdit = order }
+                            )
                         }
                     }
                 }
@@ -141,17 +148,29 @@ fun OrderListScreen(viewModel: OrderListViewModel = hiltViewModel()) {
                 TextButton(onClick = { orderToDelete = null }) {
                     Text("Ləğv et")
                 }
-            }
+            },
+            containerColor = Color.White
         )
     }
 
     if (selectedOrder != null) {
         OrderDetailsDialog(order = selectedOrder!!, onDismiss = { selectedOrder = null })
     }
+
+    if (orderToEdit != null) {
+        EditQuantityDialog(
+            order = orderToEdit!!,
+            onDismiss = { orderToEdit = null },
+            onSave = { newQuantity ->
+                viewModel.updateOrderQuantity(orderToEdit!!, newQuantity)
+                orderToEdit = null
+            }
+        )
+    }
 }
 
 @Composable
-fun ModernOrderItem(order: OrderEntity, onClick: () -> Unit) {
+fun ModernOrderItem(order: OrderEntity, onClick: () -> Unit, onEditQuantity: () -> Unit) {
     Box(modifier = Modifier.fillMaxWidth()) {
         Card(
             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -188,7 +207,7 @@ fun ModernOrderItem(order: OrderEntity, onClick: () -> Unit) {
 
         // Qiymət Badge - Sağ aşağı künc
         Surface(
-            color = Color(0xFF2E7D32), // Tünd yaşıl
+            color = Color(0xFF2E7D32),
             shape = RoundedCornerShape(topStart = 16.dp, bottomEnd = 16.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -212,25 +231,93 @@ fun ModernOrderItem(order: OrderEntity, onClick: () -> Unit) {
             }
         }
 
-        // Quantity Badge - Sağ yuxarı künc (Əgər 1-dən çoxdursa)
-        if (order.quantity > 1) {
-            Surface(
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(topEnd = 16.dp, bottomStart = 16.dp),
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .clip(RoundedCornerShape(topEnd = 16.dp, bottomStart = 16.dp))
-            ) {
-                Text(
-                    text = "${order.quantity} ədəd",
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
+        // Say Badge (Düymə kimi) - Sağ yuxarı künc
+        Surface(
+            color = MaterialTheme.colorScheme.primary,
+            shape = RoundedCornerShape(topEnd = 16.dp, bottomStart = 16.dp),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .clip(RoundedCornerShape(topEnd = 16.dp, bottomStart = 16.dp))
+                .clickable { onEditQuantity() } // Sayın üstünə vurduqda edit açılır
+        ) {
+            Text(
+                text = "${order.quantity} ədəd",
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
     }
+}
+
+@Composable
+fun EditQuantityDialog(
+    order: OrderEntity,
+    onDismiss: () -> Unit,
+    onSave: (Int) -> Unit
+) {
+    var quantity by remember { mutableIntStateOf(order.quantity) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Miqdarı dəyiş") },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "${order.width} x ${order.height} sm",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+                Spacer(Modifier.height(16.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    IconButton(
+                        onClick = { if (quantity > 1) quantity-- },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(Color(0xFFF0F0F0), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Remove, contentDescription = "Azalt")
+                    }
+
+                    Text(
+                        text = quantity.toString(),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.width(60.dp),
+                        textAlign = TextAlign.Center
+                    )
+
+                    IconButton(
+                        onClick = { quantity++ },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(Color(0xFFE0E0E0), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Artır")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onSave(quantity) }) {
+                Text("Yadda saxla")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Ləğv et")
+            }
+        },
+        shape = RoundedCornerShape(24.dp),
+        containerColor = Color.White
+    )
 }
 
 @Composable

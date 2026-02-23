@@ -7,7 +7,7 @@ import kotlin.math.PI
 import kotlin.math.asin
 
 class ArchedWindowCalculatorImpl @Inject constructor() : ArchedWindowCalculator {
-    override fun calculate(width: Double, height: Double, foot: Double): Result<ArchedWindowCalculationResult> {
+    override fun calculate(width: Double, height: Double, foot: Double, unitPrice: Double): Result<ArchedWindowCalculationResult> {
         return try {
             val w = width * 10
             val hTotal = height * 10
@@ -22,7 +22,7 @@ class ArchedWindowCalculatorImpl @Inject constructor() : ArchedWindowCalculator 
             val r = d / 2
             val arcsin = w / d
             val angle = 2 * Math.toDegrees(asin(arcsin))
-            val l = (PI * r * angle) / 180
+            val l = (3.14 * r * angle) / 180
 
             val result = ArchedWindowCalculationResult(
                 h = h / 10,
@@ -30,7 +30,7 @@ class ArchedWindowCalculatorImpl @Inject constructor() : ArchedWindowCalculator 
                 arcLength = l / 10,
                 foot = footLen / 5,
                 total = (l / 10) + (footLen / 5),
-                price = 3 * l / 1000
+                price = unitPrice * l / 1000
             )
             Result.success(result)
         } catch (e: Exception) {
@@ -38,4 +38,3 @@ class ArchedWindowCalculatorImpl @Inject constructor() : ArchedWindowCalculator 
         }
     }
 }
-

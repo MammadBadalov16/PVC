@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface OrderRepository {
     suspend fun saveOrder(order: OrderEntity)
+    suspend fun updateOrder(order: OrderEntity)
     fun getAllOrders(): Flow<List<OrderEntity>>
     suspend fun deleteOrder(id: Int)
 }

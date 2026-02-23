@@ -1,6 +1,7 @@
 package com.mb.pvc.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.mb.pvc.data.local.AppDatabase
 import com.mb.pvc.data.local.dao.OrderDao
@@ -28,5 +29,11 @@ object DatabaseModule {
     @Provides
     fun provideOrderDao(database: AppDatabase): OrderDao {
         return database.orderDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("pvc_settings", Context.MODE_PRIVATE)
     }
 }

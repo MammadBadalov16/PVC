@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.mb.pvc.data.local.entity.OrderEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -11,6 +12,9 @@ import kotlinx.coroutines.flow.Flow
 interface OrderDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrder(order: OrderEntity)
+
+    @Update
+    suspend fun updateOrder(order: OrderEntity)
 
     @Query("SELECT * FROM orders ORDER BY timestamp DESC")
     fun getAllOrders(): Flow<List<OrderEntity>>

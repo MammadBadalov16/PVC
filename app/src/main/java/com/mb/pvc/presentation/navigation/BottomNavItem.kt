@@ -3,7 +3,8 @@ package com.mb.pvc.presentation.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomNavItem(
@@ -11,29 +12,12 @@ sealed class BottomNavItem(
     val title: String,
     val icon: ImageVector
 ) {
-    object Calculator : BottomNavItem(
-        route = Screen.Calculator.route,
-        title = "Hesabla",
-        icon = Icons.Default.Calculate
-    )
-
-    object Orders : BottomNavItem(
-        route = Screen.Orders.route,
-        title = "Sifarişlər",
-        icon = Icons.Default.List
-    )
-
-    object Reports : BottomNavItem(
-        route = Screen.Reports.route,
-        title = "Hesabat",
-        icon = Icons.Default.PieChart
-    )
+    object Calculator : BottomNavItem("calculator", "Hesabla", Icons.Default.Calculate)
+    object Orders : BottomNavItem("orders", "Sifarişlər", Icons.Default.List)
+    object Reports : BottomNavItem("reports", "Hesabat", Icons.Default.BarChart)
+    object Settings : BottomNavItem("settings", "Ayarlar", Icons.Default.Settings)
 
     companion object {
-        val items = listOf(
-            Calculator,
-            Orders,
-            Reports
-        )
+        val items = listOf(Calculator, Orders, Reports, Settings)
     }
 }

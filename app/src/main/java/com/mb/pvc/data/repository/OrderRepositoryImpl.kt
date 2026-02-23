@@ -13,6 +13,10 @@ class OrderRepositoryImpl @Inject constructor(
         dao.insertOrder(order)
     }
 
+    override suspend fun updateOrder(order: OrderEntity) {
+        dao.updateOrder(order)
+    }
+
     override fun getAllOrders(): Flow<List<OrderEntity>> {
         return dao.getAllOrders()
     }
