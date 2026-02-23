@@ -3,13 +3,16 @@ package com.mb.pvc.presentation.calculator
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,6 +22,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -77,7 +81,7 @@ fun CalculatorScreen(viewModel: ArchedWindowCalculatorViewModel = hiltViewModel(
                         imeAction = ImeAction.Next
                     )
                     ModernInputField(
-                        label = "Genişlik (d)",
+                        label = "En (d)",
                         value = state.width,
                         onValueChange = { viewModel.onEvent(ArchedWindowEvent.WidthChanged(it)) },
                         imeAction = ImeAction.Next
@@ -87,10 +91,14 @@ fun CalculatorScreen(viewModel: ArchedWindowCalculatorViewModel = hiltViewModel(
                         value = state.foot,
                         onValueChange = { viewModel.onEvent(ArchedWindowEvent.FootChanged(it)) },
                         imeAction = ImeAction.Done,
-                        onDone = { 
+                        onDone = {
                             keyboardController?.hide()
-                            viewModel.onEvent(ArchedWindowEvent.CalculateClicked) 
+                            viewModel.onEvent(ArchedWindowEvent.CalculateClicked)
                         }
+                    )
+                    QuantitySelector(
+                        quantity = state.quantity.toIntOrNull() ?: 1,
+                        onQuantityChanged = { viewModel.onEvent(ArchedWindowEvent.QuantityChanged(it.toString())) }
                     )
                 }
             }
@@ -248,6 +256,46 @@ fun ModernInputField(
                 unfocusedContainerColor = Color(0xFFF8F9FA)
             )
         )
+    }
+}
+
+@Composable
+fun QuantitySelector(
+    quantity: Int,
+    onQuantityChanged: (Int) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Sifarişin sayı", style = MaterialTheme.typography.labelLarge, color = Color.Gray, modifier = Modifier.weight(1f))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            IconButton(
+                onClick = { if (quantity > 1) onQuantityChanged(quantity - 1) },
+                modifier = Modifier.size(36.dp).background(Color(0xFFF0F0F0), CircleShape)
+            ) {
+                Icon(Icons.Default.Remove, contentDescription = "Azalt")
+            }
+
+            Text(
+                text = quantity.toString(),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.width(40.dp),
+                textAlign = TextAlign.Center
+            )
+
+            IconButton(
+                onClick = { onQuantityChanged(quantity + 1) },
+                modifier = Modifier.size(36.dp).background(Color(0xFFE0E0E0), CircleShape)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Artır")
+            }
+        }
     }
 }
 

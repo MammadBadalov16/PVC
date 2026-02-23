@@ -38,7 +38,6 @@ class ReportViewModel @Inject constructor(
 ) : ViewModel() {
 
     val reportState: StateFlow<ReportState> = repository.getAllOrders()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
         .combine(MutableStateFlow(Unit)) { orders, _ ->
             calculateReports(orders)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReportState())
@@ -87,19 +86,19 @@ class ReportViewModel @Inject constructor(
             MonthlyReport(
                 monthName = monthFormat.format(cal.time),
                 year = cal.get(Calendar.YEAR),
-                totalAmount = monthOrders.sumOf { it.price },
-                count = monthOrders.size,
+                totalAmount = monthOrders.sumOf { it.price * it.quantity },
+                count = monthOrders.sumOf { it.quantity },
                 timestamp = monthStart
             )
         }.sortedByDescending { it.timestamp }
 
         return ReportState(
-            dailyTotal = dailyOrders.sumOf { it.price },
-            dailyCount = dailyOrders.size,
-            weeklyTotal = weeklyOrders.sumOf { it.price },
-            weeklyCount = weeklyOrders.size,
-            monthlyTotal = monthlyOrders.sumOf { it.price },
-            monthlyCount = monthlyOrders.size,
+            dailyTotal = dailyOrders.sumOf { it.price * it.quantity },
+            dailyCount = dailyOrders.sumOf { it.quantity },
+            weeklyTotal = weeklyOrders.sumOf { it.price * it.quantity },
+            weeklyCount = weeklyOrders.sumOf { it.quantity },
+            monthlyTotal = monthlyOrders.sumOf { it.price * it.quantity },
+            monthlyCount = monthlyOrders.sumOf { it.quantity },
             monthlyReports = allMonthlyReports
         )
     }

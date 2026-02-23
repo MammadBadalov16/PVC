@@ -32,6 +32,9 @@ class ArchedWindowCalculatorViewModel @Inject constructor(
             is ArchedWindowEvent.FootChanged ->
                 state = state.copy(foot = event.value, message = null)
 
+            is ArchedWindowEvent.QuantityChanged ->
+                state = state.copy(quantity = event.value, message = null)
+
             ArchedWindowEvent.CalculateClicked ->
                 calculate()
 
@@ -78,7 +81,8 @@ class ArchedWindowCalculatorViewModel @Inject constructor(
                 radius = result.radius,
                 arcLength = result.arcLength,
                 totalLength = result.total,
-                price = result.price
+                price = result.price,
+                quantity = state.quantity.toIntOrNull() ?: 1
             )
             repository.saveOrder(order)
             

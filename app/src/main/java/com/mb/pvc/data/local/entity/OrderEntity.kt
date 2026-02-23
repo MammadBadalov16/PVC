@@ -15,5 +15,6 @@ data class OrderEntity(
     val arcLength: Double,
     val totalLength: Double,
     val price: Double,
+    val quantity: Int = 1,
     val timestamp: Long = System.currentTimeMillis()
 )
